@@ -1,0 +1,54 @@
+# SIGCSE.infodir/lists/Makefile
+#   Various things I play with as part of the SIGCSE infodir 
+#   activities.
+
+# +--------+---------------------------------------------------------
+# | Macros |
+# +--------+
+
+# How we extract email from a tsv file created from campus.acm.org
+CAMPUS_EMAIL = cut -f9 $^ | sed 1d | tr [:upper:] [:lower:] | sort -u > $@
+
+# Where to look for all the bounced mail
+MBOX = data/bounces.mbox
+
+# All of the fun lists of email addresses to make
+EMAIL_FILES = \
+	data/active-members.email \
+	data/all-members.email \
+	data/former-members.email \
+	data/bounces.email 
+
+# +-------+----------------------------------------------------------
+# | Rules |
+# +-------+
+
+%.tsv: %.csv
+	csv2tsv < $^ > $@
+
+# +---------+--------------------------------------------------------
+# | Targets |
+# +---------+
+
+# Default target
+default: $(EMAIL_FILES) data/*.tsv
+
+data/active-members.email: data/active-members.tsv
+	$(CAMPUS_EMAIL)
+data/all-members.email: data/all-members.tsv
+	$(CAMPUS_EMAIL)
+data/former-members.email: data/former-members.tsv
+	$(CAMPUS_EMAIL)
+
+data/bounces.email: $(MBOX)
+	grep "Final-Recipient" $(MBOX) \
+		| sed -e 's/^.*; *//' -e 's/[<>]//g' \
+		| tr [:upper:] [:lower:] \
+                | grep '@' \
+		| sort -u \
+		> $@
+
+tmp/sigcse-members.txt: expired data/sigcse-members.txt
+	./expired < data/sigcse-members.txt > $@
+tmp/sigcse-announce.txt: expired data/sigcse-announce.txt
+	./expired < data/sigcse-announce.txt > $@
