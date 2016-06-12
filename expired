@@ -1,0 +1,159 @@
+#!/usr/bin/perl
+
+# expired 
+#   Look for all of the expired accounts (read from stdin).
+#   Each line of stdin is of the form
+#     email       name
+#   Typically taken from data/sigcse-announce.txt
+
+# +---------+---------------------------------------------------------
+# | Globals |
+# +---------+
+
+# The list of all SIGCSE members, present and former, in a tab-separated-value
+# form, using the standard campus.acm.org columns
+my $ALL = "data/all-members.tsv";
+
+# The list of all active SIGCSE members in a tab-separated-value
+# form, using the standard campus.acm.org columns
+my $ACTIVE = "data/active-members.tsv";
+
+# The list of email aliases, generated manually
+my $ALIASES = "data/aliases";
+
+# The list of all active SIGCSE members in a tab-separated-value
+# form, using the standard campus.acm.org columns
+my $FORMER = "data/former-members.tsv";
+
+my $DEBUG = ($#ARGV == 0);
+LOG("DEBUG = $DEBUG\n");
+
+# +------+------------------------------------------------------------
+# | Main |
+# +------+
+
+my $entries = 0;      # The number of entries we've processed
+my $active = 0;         # The number of active accounts
+my $expired = 0;        # The number of expired accounts
+
+while (my $entry = <STDIN>) {
+    ++$entries;
+
+    # Extract email and name (there's probably a better way to do that)
+    chomp($entry);
+    my $email = $entry;
+    $email =~ s/ .*$//;
+    my $name = $entry;
+    $name =~ s/^[^ ]*  *//;
+    $name =~ s/^"//;    # Special case ... remove quotation marks
+    $name =~ s/"$//;    # Special case ... remove quotation marks
+    $name =~ s/"/'/;    # Special case: Apostrophe (I hope)
+
+    LOG("Exploring #$entries $email ($name)\n");
+
+    # Option 1: An "obvious" active member - matching email or name
+    if (active($name) || active($email)) {
+      LOG("ACTIVE\n");
+      ++$active;
+    }
+
+    # Option 2: An aliased active member
+    elsif (active(alias($email))) {
+      LOG("ACTIVE ALIAS\n");
+      ++$active;
+    }
+
+    # Option 3: An "obvious" former member - matching email or name
+    elsif ((my $tmp = inactive($name)) || (my $tmp = inactive($email))) {
+      LOG("INACTIVE\n");
+      print $tmp;
+      ++$expired;
+    }
+
+    # Option 4: A "clever" active check, matching both first and last
+    # name.
+    elsif (smartcheck($name)) {
+      ++$active;
+    }
+
+    # Option 5: Default
+    else {
+      LOG("UNKNOWN\n");
+      print "$email\t$name\tUNKNOWN\n";
+      ++$expired;
+    }
+  } # while
+
+print STDERR "Processed $entries entries.\n";
+print STDERR "$active active accounts found.\n";
+print STDERR "$expired expired accounts found.\n";
+exit 0;
+
+# +-------------+----------------------------------------------------
+# | Subroutines |
+# +-------------+
+
+# LOG(str) - Print a string to the "log"
+sub LOG($)
+{
+  my $entry = shift;
+  if ($DEBUG) {
+    print STDERR $entry;
+  }
+} # LOG
+
+# active(str) - Return a non-empty string if the string appears in the
+#   list of active users and the empty string otherwise.  (I think)
+sub active($)
+{
+  my $term = shift;
+
+  if ($term eq "") {
+    return "";
+  }
+  my $result = `grep -i "$term" $ACTIVE`;
+  return $result;
+} #  active
+
+# alias(email) - Determine the alias for an email address.  Returns
+#   the empty string if there is no alias.
+sub alias($)
+{
+  my $email = shift;
+  my $alias = `grep -i "$email" $ALIASES`;
+  if ($alias eq "") { return ""; }
+  $alias =~ s/^[^ ]*  *//;
+  chomp($alias);
+  LOG("alias($email) = $alias\n");
+  return $alias;
+} # alias
+
+# inactive(str) - Return a non-empty string if the string appears in the
+#   list of inactive users and the empty string otherwise.  (I think)
+sub inactive($)
+{
+  my $term = shift;
+  if ($term eq "") {
+    return "";
+  }
+  my $result = `grep -i "$term" $FORMER | cut -f9,2,18`;
+  LOG("inactive($term) = $result\n");
+  return $result;
+} #  inactive
+
+# smartcheck(name) - Return a non-empty string if an appropriate form
+#   of the string appears in the list of active users.
+sub smartcheck($)
+{
+  my $name = shift;
+  if ($name eq "") { return ""; }
+  if ($name eq "(No Name Available)") { return ""; }
+  my @name = split / /,$name;
+  my $fname = $name[0];
+  my $lname = $name[$#name];
+  my $result = active("$lname\t$fname");
+  if ($result) {
+    print STDERR "smartcheck($name) = $result";         # DEBUG/UNDERSTAND
+  }
+  return $result;
+}
