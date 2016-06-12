@@ -1,0 +1,13 @@
+# Directories that I want to ignore
+SIGCSE.infodir
+old
+data
+tmp
+
+# Data files should not be public.  Maybe I should make a separate
+# repository?  That's a task for another day.
+*.tsv
+*.csv
+
+# Backup files
+*.swp
