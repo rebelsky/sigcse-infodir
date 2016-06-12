@@ -1,0 +1,92 @@
+#!/usr/bin/perl
+
+# info <EMAIL>
+#   Get followup information on an email address that is in the
+#   SIGCSE-announce list.
+
+# +---------+---------------------------------------------------------
+# | Globals |
+# +---------+
+
+# The SIGCSE-announce members list, each line of which contains
+# an email address, a bunch of spaces, and then a name).
+$SIGCSE_ANNOUNCE = "data/sigcse-announce.txt";
+
+# The SIGCSE-members members list, each line of which contains
+# an email address, a bunch of spaces, and then a name).
+$SIGCSE_MEMBERS = "data/sigcse-members.txt";
+
+# The list of all SIGCSE members, present and former, in a tab-separated-value
+# form, using the standard campus.acm.org columns
+$SIGCSE_DATABASE = "data/all-members.tsv";
+
+# +------+------------------------------------------------------------
+# | Main |
+# +------+
+
+$email = shift;
+$info = `grep -i $email $SIGCSE_ANNOUNCE`;
+chomp($info);
+if (!$info) {
+  print STDERR "Cannot find information for '$email'\n";
+  exit 1;
+}
+print "Information for <$email>\n";
+
+# Extract full name and last name
+$info =~ s/$email *//i;
+$info =~ s/ \[concealed\]//;
+$lname = $info;
+if ($info ne "(No Name Available)") {
+  $lname =~ s/, Jr.*//;
+  $lname =~ s/^.* //;
+}
+print "  Name: $info\n";
+print "  Last: $lname\n";
+if ($info eq "(No Name Available)") {
+  exit 0;
+}
+
+# Look in the obvious places for an exact match
+$sm = `grep -i "$info" $SIGCSE_MEMBERS`;
+$sme = `grep -i "$email" $SIGCSE_MEMBERS`;
+$sd = `grep -i "$info" $SIGCSE_DATABASE`;
+
+if ($sm) {
+  print "  Entry in SIGCSE-members\n    $sm\n";
+} # if ($sm)
+if ($sme && !$sm) {
+  print "  Entry in SIGCSE-members\n    $sme\n";
+} # if ($sme && !$sm)
+if ($sd) {
+  $sd = `echo "$sd" | cut -f2,9,18`;
+  print "  Info from ACM\n    $sd\n";
+}
+
+# Build a list of useful words to look for
+@words = split(//,"");
+push @words,$lname;
+$info =~ s/ $lname//;
+@parts = split(' ',$info);
+foreach $part (@parts) {
+  if (length($part) > 3) {
+    push @words,$part;
+  } # if length is bigger than 3
+} # foreach
+
+# Look for each useful word in each file
+if (!$sm && !sme) {
+  print stderr "  Matches in SIGCSE-members\n";
+  foreach $word (@words) {
+    $stuff = `grep -i $word $SIGCSE_MEMBERS | sed -e 's/^/    /'`;
+    print $stuff;
+  } # foreach $word
+} # sigcse-members
+
+if (!$sd) {
+  print stderr "  Matches in SIGCSE database\n";
+  foreach $word (@words) {
+    $stuff = `grep -i $word $SIGCSE_DATABASE | cut -f2,9,18 | sed -e 's/^/    /'`;
+    print $stuff;
+  } # foreach $word
+} # foreach $word
