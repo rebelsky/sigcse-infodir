@@ -48,11 +48,21 @@ while (my $entry = <STDIN>) {
     $name =~ s/^"//;    # Special case ... remove quotation marks
     $name =~ s/"$//;    # Special case ... remove quotation marks
     $name =~ s/"/'/;    # Special case: Apostrophe (I hope)
+    $name =~ s/^Dr\. //;        # Special case: Dr.
+    $name =~ s/^Dr //;          # Special case: Dr
+    $name =~ s/^Mr\. //;        # Special case: Mr.
+    $name =~ s/^Mr //;          # Special case: Mr
 
     LOG("Exploring #$entries $email ($name)\n");
 
+    # Option 0: Folks with a hq.acm.org
+    if ($email =~ m/hq.acm.org/i) {
+      LOG("ACM HQ\n");
+      ++$active;
+    }
+
     # Option 1: An "obvious" active member - matching email or name
-    if (active($name) || active($email)) {
+    elsif (active($name) || active($email)) {
       LOG("ACTIVE\n");
       ++$active;
     }
@@ -72,14 +82,30 @@ while (my $entry = <STDIN>) {
 
     # Option 4: A "clever" active check, matching both first and last
     # name.
-    elsif (smartcheck($name)) {
+    elsif (smartcheck($name,1)) {
+      LOG("SMART CHECK/ACTIVE SUCCEEDED\n");
       ++$active;
     }
 
-    # Option 5: Default
+    # Option 5: An aliased inactive member
+    elsif (my $tmp = inactive(alias($email))) {
+      LOG("INACTIVE ALIAS\n");
+      print $tmp;
+      ++$expired;
+    }
+
+    # Option 6: The same smart check for inactive accounts (useful for
+    # getting folks who are expired)
+    elsif (my $tmp = smartcheck($name,0)) {
+      LOG("SMART CHECK/EXPIRED SUCCEEDED\n");
+      print $tmp;
+      ++$expired;
+    }
+
+    # Option 7: Default
     else {
       LOG("UNKNOWN\n");
-      print "$email\t$name\tUNKNOWN\n";
+      print "$name\t$email\tUNKNOWN\n";
       ++$expired;
     }
   } # while
@@ -136,24 +162,25 @@ sub inactive($)
   if ($term eq "") {
     return "";
   }
-  my $result = `grep -i "$term" $FORMER | cut -f9,2,18`;
+  my $result = `grep -i "$term" $FORMER | cut -f2,9,18`;
   LOG("inactive($term) = $result\n");
   return $result;
 } #  inactive
 
 # smartcheck(name) - Return a non-empty string if an appropriate form
 #   of the string appears in the list of active users.
-sub smartcheck($)
+sub smartcheck($$)
 {
   my $name = shift;
+  my $useactive = shift;
   if ($name eq "") { return ""; }
   if ($name eq "(No Name Available)") { return ""; }
   my @name = split / /,$name;
   my $fname = $name[0];
   my $lname = $name[$#name];
-  my $result = active("$lname\t$fname");
+  my $result = $useactive ? active("$lname\t$fname") : inactive("$lname\t$fname");
   if ($result) {
-    print STDERR "smartcheck($name) = $result";         # DEBUG/UNDERSTAND
+    print STDERR "smartcheck($name,$useactive) = $result";         # DEBUG/UNDERSTAND
   }
   return $result;
 }
