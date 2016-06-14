@@ -1,0 +1,37 @@
+#!/usr/bin/perl
+
+# new-members current-list previous-list
+#   Determine all of the new members (maybe)
+
+if ($#ARGV != 0) {
+  print STDERR "Usage: new-members previous-list\n";
+  exit 1;
+}
+$previous = $ARGV[0];
+
+$command = "diff data/active-members.tsv $previous | grep '^<'";
+# print STDERR "$command\n";
+open(my $fh, "$command |") or die "Failed to open command [$command]";
+while (my $candidate = <$fh>) {
+  chomp($candidate);
+  # print STDERR $candidate."\n";
+  $candidate =~ s/^< //;
+  my @candidate = split("\t",$candidate);
+  my $email = $candidate[8];
+  my $id = $candidate[0];
+  if (my $prevnum = `grep "^$id" $previous`) {
+    # print STDERR "Skipping $id $email - old member\n";
+  }
+  elsif (my $subscribed = `grep -i "$email" data/sigcse-announce.txt`) {
+    # print STDERR "Skipping $id $email - already subscribed\n";
+  }
+  elsif (my $aliased = `grep -i "$email" data/aliases`) {
+    # print STDERR "Skipping $id $email - aliased\n";
+  }
+  else {
+    print $candidate[1]."\t".$candidate[8]."\t".$candidate[17]."\n";
+  }
+} # while
+close $fh;
+exit 0;
+
