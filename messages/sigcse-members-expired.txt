@@ -1,0 +1,19 @@
+Dear SIGCSE-members subscriber,
+
+We are in the midst of cleaning up the SIGCSE-members mailing list.  You currently receive messages from that list at the address <_EMAIL_>.  SIGCSE policies indicate that only current members of SIGCSE should receive that mailing list [1].  Unfortunately, ACM records seem to indicate that your SIGCSE membership expired on _EXPIRATION_.  
+
+In early July, we plan to remove any expired members from the mailing list.  If you would like to remain on the SIGCSE-members mailing list, please renew your membership by the end of June.  If you are still a member of SIGCSE, please send me your membership number so that I can check with ACM.  If you have questions, feel free to contact me.
+
+Regards,
+
+-- SamR
+
+p.s. If you are also subscribed to the SIGCSE-announce mailing list, you may also receive a similar message for that list.
+
+[1] http://www.sigcse.org/sigcse/membership/mailing-lists
+
+Samuel A. Rebelsky
+SIGCSE Information Co-Director
+rebelsky@grinnell.edu
+infodir@sigcse.org
+

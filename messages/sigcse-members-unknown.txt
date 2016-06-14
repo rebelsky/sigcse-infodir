@@ -1,0 +1,20 @@
+Dear SIGCSE-members subscriber,
+
+We are in the midst of cleaning up the SIGCSE-members mailing list.  You currently receive messages from that list at the address <_EMAIL_>.  SIGCSE policies indicate that only current members of SIGCSE should receive that mailing list [1].  Unfortunately, ACM records do not include an active SIGCSE membership that matches your email address.
+
+In early July, we plan to remove any recipients without active SIGCSE memberships from the mailing list.  If you have a SIGCSE membership under a separate email address, please let me know that email address or your ACM account number.  If you do not currently have a SIGCSE membership, I would encourage you to join or rejoin.  Information is available on the SIGCSE membership page [2].  If you have questions, feel free to contact me.
+
+Regards,
+
+-- SamR
+
+p.s. If you are also subscribed to the SIGCSE-announce mailing list, you may also receive a similar message for that list.
+
+[1] http://www.sigcse.org/sigcse/membership/mailing-lists
+
+[2] http://www.sigcse.org/sigcse/membership
+
+Samuel A. Rebelsky
+SIGCSE Information Co-Director
+rebelsky@grinnell.edu
+infodir@sigcse.org

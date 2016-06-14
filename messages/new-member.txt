@@ -1,0 +1,22 @@
+_SALUTATION_
+Our records suggest that within the past few months you joined ACM SIGCSE, the Special Interest Group for Computer Science Education.  As you may know, SIGCSE maintains two moderated mailing lists for announcements and discussion of topics of general interest to SIGCSE members.  
+
+SIGCSE-announce is used only by SIGCSE administrators to distribute important SIGCSE announcements to all SIGCSE members. 
+
+SIGCSE-members is used by all SIGCSE members to post and discuss issues of concern to the SIGCSE community. Some types of professional announcements are also allowed on this list. This list is fully moderated and has moderate traffic (averages two or three per day with the occasional flurry of comments). 
+
+Subscription is limited to SIGCSE members.  It appears that you have not yet subscribed to either SIGCSE mailing list, so I am writing to invite you to subscribe.  Most SIGCSE members typically subscribe to both lists. Those who only want to hear about the most important events and activities should subscribe to SIGCSE-announce.
+
+Further information on the lists is available at <http://sigcse.org/sigcse/membership/mailing-lists>.
+
+If you would like to subscribe to either list or both lists, please let me know.
+
+Thanks, and welcome to SIGCSE!
+
+-- SamR
+
+Samuel A. Rebelsky
+SIGCSE Information Co-Director
+rebelsky@grinnell.edu
+infodir@sigcse.org
+
