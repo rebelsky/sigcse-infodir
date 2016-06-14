@@ -1,0 +1,33 @@
+#!/usr/bin/perl
+
+# dupes file
+#   A quick and dirty way to look for duplicates
+
+my $filename = $ARGV[0];
+open DATA, "< $filename";
+my $prev_first = "";
+my $prev_last = "";
+my $prev_email = "";
+while (my $line = <DATA>) {
+  chomp($line);
+  my @parts = split(/\t/,$line);
+  my $name = $parts[0];
+  my $email = $parts[1];
+  # print "Name: $name\n";
+  my @name = split(/ /,$name);
+  my $first = $name[0];
+  my $last = $name[$#name];
+  # print "Checking $first $last vs $prev_first $prev_lst\n";
+  if ($last eq $prev_last) {
+    print "Potential match: $first $last vs $prev_first $prev_last\n";
+  }
+  elsif ($email eq $prev_email) {
+    print "Potential match: $email vs $prev_email\n";
+  }
+  $prev_first = $first;
+  $prev_last = $last;
+  $prev_email = $email;
+} # while
+close DATA;
+
+exit 0;
