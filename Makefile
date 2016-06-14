@@ -19,6 +19,15 @@ EMAIL_FILES = \
 	data/former-members.email \
 	data/bounces.email 
 
+# All of the fun list of expired accounts
+EXPIRED_FILES = \
+	tmp/sigcse-members.txt \
+	tmp/sigcse-members-unknown.txt \
+	tmp/sigcse-members-expired.txt \
+	tmp/sigcse-announce.txt \
+	tmp/sigcse-announce-unknown.txt \
+	tmp/sigcse-announce-expired.txt
+
 # +-------+----------------------------------------------------------
 # | Rules |
 # +-------+
@@ -32,6 +41,9 @@ EMAIL_FILES = \
 
 # Default target
 default: $(EMAIL_FILES) data/*.tsv
+
+# Things for exploring expired accounts
+expired-accounts: $(EXPIRED_FILES)
 
 data/active-members.email: data/active-members.tsv
 	$(CAMPUS_EMAIL)
@@ -52,3 +64,11 @@ tmp/sigcse-members.txt: expired data/sigcse-members.txt
 	./expired < data/sigcse-members.txt > $@
 tmp/sigcse-announce.txt: expired data/sigcse-announce.txt
 	./expired < data/sigcse-announce.txt > $@
+tmp/sigcse-members-unknown.txt: tmp/sigcse-members.txt
+	grep UNKNOWN $^ > $@
+tmp/sigcse-members-expired.txt: tmp/sigcse-members.txt
+	grep -v UNKNOWN $^ > $@
+tmp/sigcse-announce-unknown.txt: tmp/sigcse-announce.txt
+	grep UNKNOWN $^ > $@
+tmp/sigcse-announce-expired.txt: tmp/sigcse-announce.txt
+	grep -v UNKNOWN $^ > $@
