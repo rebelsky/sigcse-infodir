@@ -1,0 +1,93 @@
+#!/usr/bin/perl
+
+# blast subject message-file users-file
+#   Send a message to all of the users in users-file.
+
+# +------+-----------------------------------------------------------
+# | Main |
+# +------+
+
+# Sanity check
+if ($#ARGV != 2) {
+  giveup("Incorrect number of parameters.");
+}
+
+my $subject = $ARGV[0];
+my $message = $ARGV[1];
+my $users = $ARGV[2];
+
+if (! -f $message) {
+  giveup("Cannot find message file $message");
+}
+if (!-f $users) {
+  giveup("Cannot find users file $users");
+}
+
+# Read the contents
+my $contents = "";
+open MESSAGE, "< $message";
+while (my $line = <MESSAGE>) {
+  $contents .= $line;
+} # while
+close MESSAGE;
+
+# For each user
+open USERS, "< $users";
+while (my $entry = <USERS>) {
+  chomp($entry);
+
+  # Extract the parts of the entry
+  my @parts = split("\t",$entry);
+  my $name = $parts[0];
+  my $email = lc $parts[1];
+  my $expiration = $parts[2];
+
+  # Build the salutation
+  my $salutation;
+  if ($name =~ m/No Name Available/) {
+    $salutation = "";
+  }
+  else {
+    $salutation = "Dear $name,\n";
+  }
+
+  # Build the message
+  my $tmp_message = $contents;
+  $tmp_message =~ s/_SALUTATION_/$salutation/g;
+  $tmp_message =~ s/_NAME_/$name/g;
+  $tmp_message =~ s/_EMAIL_/$email/g;
+  $tmp_message =~ s/_EXPIRATION_/$expiration/g;
+
+  # Build the subject
+  my $tmp_subject = $subject;
+  $tmp_subject =~ s/_SALUTATION_/$salutation/g;
+  $tmp_subject =~ s/_NAME_/$name/g;
+  $tmp_subject =~ s/_EMAIL_/$email/g;
+  $tmp_subject =~ s/_EXPIRATION_/$expiration/g;
+
+  # Build the command
+  $command = "clems \"$email\" --replyto \"infodir\@sigcse.org\" --subject \"$tmp_subject\" --user rebelsky\@grinnell.edu --name \"Samuel A. Rebelsky\"";
+
+  # And do the work
+  print STDERR "Sending email to $name <$email>\n";
+  # print STDERR "$command\n";
+  open COMMAND, "| $command";
+  print COMMAND $tmp_message;
+  close COMMAND;
+  sleep 10;
+} # while
+
+# +-------------+----------------------------------------------------
+# | Subroutines |
+# +-------------+
+
+sub giveup($)
+{
+  my $msg = shift;
+  print STDERR <<"MESSAGE";
+*** $msg ***
+
+Usage: blast subject message-file users-file
+MESSAGE
+  exit 1;
+}
